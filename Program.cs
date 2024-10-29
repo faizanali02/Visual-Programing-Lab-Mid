@@ -1,252 +1,221 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
 
-public class ClubRole
+namespace StudentManagementClub
 {
-    private string name;
-    private string role;
-    private string contactInfo;
 
-    public string Name
+    public class ClubRole
     {
-        get { return name; }
-        set { name = value; }
+        public string Name { get; set; }
+        public string Role { get; set; }
+        public string ContactInfo { get; set; }
     }
 
-    public string Role
+
+    public class StudentClub
     {
-        get { return role; }
-        set { role = value; }
-    }
+        public double Budget { get; set; }
+        public ClubRole President { get; set; }
+        public ClubRole VicePresident { get; set; }
+        public ClubRole GeneralSecretary { get; set; }
+        public ClubRole FinanceSociety { get; set; }
 
-    public string ContactInfo
-    {
-        get { return contactInfo; }
-        set { contactInfo = value; }
-    }
-}
+        private List<Society> societies = new List<Society>();
 
-public class Society
-{
-    private string name;
-    private string contact;
-    private List<string> events = new List<string>();
-
-    public string Name
-    {
-        get { return name; }
-        set { name = value; }
-    }
-
-    public string Contact
-    {
-        get { return contact; }
-        set { contact = value; }
-    }
-
-    public List<string> Events
-    {
-        get { return events; }
-    }
-
-    public void AddActivity()
-    {
-        Console.Write("Which society you want to assign activity: ");
-        string input = Console.ReadLine();
-        var societies = new List<Society>(); 
-        var check = societies.FirstOrDefault(s => s.Name == input);
-
-        if (check != null)
+        public void FundSociety(FundedSociety society, double amount)
         {
-            Console.Write("Enter the activity you want to assign to society: ");
-            string activity = Console.ReadLine();
-            check.Events.Add(activity);
-        }
-    }
-
-    public void ListEvents()
-    {
-        Console.WriteLine("Listed events are here:");
-        foreach (var evt in Events)
-        {
-            Console.WriteLine(evt);
-        }
-    }
-}
-
-public class FundedSociety : Society
-{
-    private double budget;
-
-    public double Budget
-    {
-        get { return budget; }
-        set { budget = value; }
-    }
-}
-
-public class NonFundedSociety : Society
-{
-}
-
-public class StudentClub
-{
-    private double budget;
-    private ClubRole president;
-    private ClubRole vicePresident;
-    private ClubRole generalSecretary;  
-    private ClubRole financeSecretary; 
-    private List<Society> societies = new List<Society>();
-
-    public double Budget
-    {
-        get { return budget; }
-        set { budget = value; }
-    }
-
-    public ClubRole President
-    {
-        get { return president; }
-        set { president = value; }
-    }
-
-    public ClubRole VicePresident
-    {
-        get { return vicePresident; }
-        set { vicePresident = value; }
-    }
-
-    public ClubRole GeneralSecretary
-    {
-        get { return generalSecretary; }
-        set { generalSecretary = value; }
-    }
-
-    public ClubRole FinanceSecretary
-    {
-        get { return financeSecretary; }
-        set { financeSecretary = value; }
-    }
-
-    public void RegisterSociety()
-    {
-        Console.Write("Enter the name of new society: ");
-        string societyName = Console.ReadLine();
-
-        Console.Write("Now enter the hierarchy of this society: ");
-        string hierarchy = Console.ReadLine();
-
-        Society newSociety;
-        if (societyName == "Techbit Society" || societyName == "Literary Society" || societyName == "Sports Society")
-        {
-            newSociety = new FundedSociety { Name = societyName, Contact = hierarchy, Budget = (societyName == "Techbit Society") ? 600 : 500 };
-        }
-        else
-        {
-            newSociety = new NonFundedSociety { Name = societyName, Contact = hierarchy };
-        }
-
-        societies.Add(newSociety);
-    }
-
-    public void AllocateFunding()
-    {
-        Console.Write("Enter the name of the society to fund: ");
-        string societyName = Console.ReadLine();
-        var society = societies.FirstOrDefault(s => s.Name == societyName);
-
-        if (society != null && society is FundedSociety fundedSociety)
-        {
-            Console.Write("Enter the amount of funding: ");
-            double amount = double.Parse(Console.ReadLine());
-            fundedSociety.Budget += amount;
-        }
-    }
-
-    public void RegisterEvent()
-    {
-        Console.Write("Enter the name of the society to register an event: ");
-        string societyName = Console.ReadLine();
-        var society = societies.FirstOrDefault(s => s.Name == societyName);
-
-        if (society != null)
-        {
-            society.AddActivity();
-        }
-    }
-
-    public void DisplayFundingInformation()
-    {
-        foreach (var society in societies)
-        {
-            if (society is FundedSociety fundedSociety)
+            if (Budget >= amount)
             {
-                Console.WriteLine($"{fundedSociety.Name} has a budget of {fundedSociety.Budget}");
+                society.FundingAmount += amount;
+                Budget -= amount;
             }
             else
             {
-                Console.WriteLine($"{society.Name} is a non-funded society.");
+                Console.WriteLine("Insufficient budget to allocate funding.");
             }
         }
-    }
 
-    public void DisplayEvents()
-    {
-        Console.Write("Enter the name of the society to list events: ");
-        string societyName = Console.ReadLine();
-        var society = societies.FirstOrDefault(s => s.Name == societyName);
-
-        if (society != null)
+        public void DispenseFunds()
         {
-            society.ListEvents();
-        }
-    }
-}
-
-public class User
-{
-    public static void Main(string[] args)
-    {
-        int option = 0;
-        var studentClub = new StudentClub();
-
-        do
-        {
-            Console.WriteLine("Student Club Management System");
-            Console.WriteLine("1. Register a new society");
-            Console.WriteLine("2. Allocate Funding to Societies");
-            Console.WriteLine("3. Register an event for a society");
-            Console.WriteLine("4. Display Society Funding Information");
-            Console.WriteLine("5. Display events for a society");
-            Console.WriteLine("6. Exit");
-            option = int.Parse(Console.ReadLine());
-
-            switch (option)
+            foreach (var society in societies)
             {
-                case 1:
-                    studentClub.RegisterSociety();
-                    break;
-                case 2:
-                    studentClub.AllocateFunding();
-                    break;
-                case 3:
-                    studentClub.RegisterEvent();
-                    break;
-                case 4:
-                    studentClub.DisplayFundingInformation();
-                    break;
-                case 5:
-                    studentClub.DisplayEvents();
-                    break;
-                case 6:
-                    Console.WriteLine("Exiting...");
-                    break;
-                default:
-                    Console.WriteLine("Invalid option, please try again.");
-                    break;
+                if (society is FundedSociety fundedSociety)
+                {
+                    Console.WriteLine($"Society: {fundedSociety.Name}, Funding Amount: {fundedSociety.FundingAmount}");
+                }
             }
-        } while (option != 6);
+        }
+
+        public void RegisterSociety(Society society)
+        {
+            societies.Add(society);
+        }
+
+        public void DisplaySocieties()
+        {
+            foreach (var society in societies)
+            {
+                Console.WriteLine($"Society Name: {society.Name}, Contact: {society.Contact}");
+            }
+        }
+
+        public List<Society> GetSocieties()
+        {
+            return societies;
+        }
+    }
+
+
+    public class Society
+    {
+        public string Name { get; set; }
+        public string Contact { get; set; }
+        private List<Activity> activities = new List<Activity>();
+
+        public void AddActivity(Activity activity)
+        {
+            activities.Add(activity);
+        }
+
+        public void ListEvents()
+        {
+            foreach (var activity in activities)
+            {
+                Console.WriteLine($"Activity: {activity.Description}, Date: {activity.Date}");
+            }
+        }
+    }
+
+
+    public class FundedSociety : Society
+    {
+        public double FundingAmount { get; set; }
+    }
+
+
+    public class Activity
+    {
+        public string Description { get; set; }
+        public DateTime Date { get; set; }
+    }
+
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            StudentClub club = new StudentClub { Budget = 10000 };
+            Console.WriteLine("Students Management Club System");
+            Console.WriteLine("1. Register a society");
+            Console.WriteLine("2. Allocate funding to societies");
+            Console.WriteLine("3. Register an event for a society");
+            Console.WriteLine("4. Display society funding information");
+            Console.WriteLine("5. Display events for society");
+            Console.WriteLine("6. Exit");
+
+            bool exit = false;
+            while (!exit)
+            {
+                Console.WriteLine("\nEnter your choice: ");
+                int choice = Convert.ToInt32(Console.ReadLine());
+                switch (choice)
+                {
+                    case 1:
+                        RegisterSociety(club);
+                        break;
+                    case 2:
+                        AllocateFunding(club);
+                        break;
+                    case 3:
+                        RegisterEvent(club);
+                        break;
+                    case 4:
+                        club.DispenseFunds();
+                        break;
+                    case 5:
+                        DisplayEvents(club);
+                        break;
+                    case 6:
+                        exit = true;
+                        break;
+                    default:
+                        Console.WriteLine("Invalid choice. Please select again.");
+                        break;
+                }
+            }
+        }
+
+        static void RegisterSociety(StudentClub club)
+        {
+            Console.WriteLine("Enter society name: ");
+            string name = Console.ReadLine();
+            Console.WriteLine("Enter contact: ");
+            string contact = Console.ReadLine();
+            Console.WriteLine("Is it a funded society? (yes/no): ");
+            string isFunded = Console.ReadLine().ToLower();
+            if (isFunded == "yes")
+            {
+                FundedSociety fundedSociety = new FundedSociety { Name = name, Contact = contact };
+                club.RegisterSociety(fundedSociety);
+            }
+            else
+            {
+                Society society = new Society { Name = name, Contact = contact };
+                club.RegisterSociety(society);
+            }
+        }
+
+        static void AllocateFunding(StudentClub club)
+        {
+            Console.WriteLine("Enter society name to fund: ");
+            string name = Console.ReadLine();
+            Console.WriteLine("Enter funding amount: ");
+            double amount = Convert.ToDouble(Console.ReadLine());
+            foreach (var society in club.GetSocieties())
+            {
+                if (society.Name == name && society is FundedSociety fundedSociety)
+                {
+                    club.FundSociety(fundedSociety, amount);
+                    return;
+                }
+            }
+            Console.WriteLine("Society not found or is not a funded society.");
+        }
+
+        static void RegisterEvent(StudentClub club)
+        {
+            Console.WriteLine("Enter society name: ");
+            string name = Console.ReadLine();
+            foreach (var society in club.GetSocieties())
+            {
+                if (society.Name == name)
+                {
+                    Console.WriteLine("Enter activity description: ");
+                    string description = Console.ReadLine();
+                    Console.WriteLine("Enter activity date (yyyy-MM-dd): ");
+                    DateTime date = DateTime.Parse(Console.ReadLine());
+                    Activity activity = new Activity { Description = description, Date = date };
+                    society.AddActivity(activity);
+                    return;
+                }
+            }
+            Console.WriteLine("Society not found.");
+        }
+
+        static void DisplayEvents(StudentClub club)
+        {
+            Console.WriteLine("Enter society name: ");
+            string name = Console.ReadLine();
+            foreach (var society in club.GetSocieties())
+            {
+                if (society.Name == name)
+                {
+                    society.ListEvents();
+                    return;
+                }
+            }
+            Console.WriteLine("Society not found.");
+        }
     }
 }
+
+
